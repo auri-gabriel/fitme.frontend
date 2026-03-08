@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import TextField from '../components/Forms/Textfield';
 import PrimaryButton from '../components/Buttons/PrimaryButton';
 import { isValidEmail } from '../utils/isValidEmail';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { signupUser } from '../api/authApi';
 
 const SignupFormContainer = styled.div`
@@ -52,6 +52,7 @@ const SignupLink = styled.p`
 `;
 
 const Signup: React.FC = () => {
+  const navigate = useNavigate();
   const [signupData, setSignupData] = useState({
     fullName: '',
     username: '',
@@ -123,7 +124,9 @@ const Signup: React.FC = () => {
         );
         console.log('Signup successful:', data);
         localStorage.setItem('authToken', data.viewer.sessionToken);
+        localStorage.setItem('authUsername', data.viewer.user.username);
         setSignupStatus('success');
+        navigate('/');
       } catch (error) {
         console.error('Error signing up:', error);
         setSignupStatus('error');
