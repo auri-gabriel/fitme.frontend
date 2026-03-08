@@ -115,8 +115,14 @@ const Signup: React.FC = () => {
     if (isValid) {
       setSignupStatus('loading');
       try {
-        const data = await signupUser(signupData.username, signupData.password);
+        const data = await signupUser(
+          signupData.username,
+          signupData.password,
+          signupData.email,
+          signupData.fullName,
+        );
         console.log('Signup successful:', data);
+        localStorage.setItem('authToken', data.viewer.sessionToken);
         setSignupStatus('success');
       } catch (error) {
         console.error('Error signing up:', error);
@@ -134,47 +140,47 @@ const Signup: React.FC = () => {
       <SignupFormContainer>
         <form onSubmit={handleSignup}>
           <TextField
-            label="Full Name"
-            name="fullName"
+            label='Full Name'
+            name='fullName'
             value={signupData.fullName}
             onChange={handleInputChange}
             error={errors.fullName}
           />
           <TextField
-            label="Username"
-            name="username"
+            label='Username'
+            name='username'
             value={signupData.username}
             onChange={handleInputChange}
             error={errors.username}
           />
           <TextField
-            label="Email"
-            type="email"
-            name="email"
+            label='Email'
+            type='email'
+            name='email'
             value={signupData.email}
             onChange={handleInputChange}
             error={errors.email}
           />
           <TextField
-            label="Password"
-            type="password"
-            name="password"
+            label='Password'
+            type='password'
+            name='password'
             value={signupData.password}
             onChange={handleInputChange}
             error={errors.password}
           />
           <TextField
-            label="Confirm Password"
-            type="password"
-            name="confirmPassword"
+            label='Confirm Password'
+            type='password'
+            name='confirmPassword'
             value={signupData.confirmPassword}
             onChange={handleInputChange}
             error={errors.confirmPassword}
           />
           <SignupLink>
-            Already have an account? <Link to="/login">Login</Link>
+            Already have an account? <Link to='/login'>Login</Link>
           </SignupLink>
-          <PrimaryButton type="submit">
+          <PrimaryButton type='submit'>
             {signupStatus === 'loading' ? 'Registering...' : 'Sign Up'}
           </PrimaryButton>
         </form>

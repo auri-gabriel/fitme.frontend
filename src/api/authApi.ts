@@ -1,42 +1,56 @@
 import axios from 'axios';
 
-export const signupUser = async (username: string, password: string) => {
+const GRAPHQL_URL = 'http://localhost:8080/graphql';
+
+export type AuthResponse = {
+  viewer: {
+    user: {
+      id: string;
+      username: string;
+      createdAt?: string;
+      updatedAt?: string;
+    };
+    sessionToken: string;
+  };
+};
+
+export const signupUser = async (
+  username: string,
+  password: string,
+  email?: string,
+  fullName?: string,
+) => {
   try {
-    const response = await axios.post(
-      'https://parseapi.back4app.com/graphql',
-      {
-        query: `
-          mutation SignUp($username: String!, $password: String!) {
-            signUp(input: {
-              fields: {
-                username: $username,
-                password: $password
-              }
-            }) {
+    const response = await axios.post(GRAPHQL_URL, {
+      query: `
+          mutation SignUp($input: SignUpInput!) {
+            signUp(input: $input) {
               viewer {
                 user {
                   id
+                  username
                   createdAt
+                  updatedAt
                 }
                 sessionToken
               }
             }
           }
         `,
-        variables: {
+      variables: {
+        input: {
           username,
           password,
+          email,
+          fullName,
         },
       },
-      {
-        headers: {
-          'X-Parse-Application-Id': 'DSiIkHz2MVbCZutKS7abtgrRVsiLNNGcs0L7VsNL',
-          'X-Parse-Master-Key': '0cpnqkSUKVkIDlQrNxameA6OmjxmrA72tsUMqVG9',
-          'X-Parse-Client-Key': 'zXOqJ2k44R6xQqqlpPuizAr3rs58RhHXfU7Aj20V',
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    });
+
+    if (response.data.errors?.length) {
+      throw new Error(response.data.errors[0].message || 'Signup failed');
+    }
+
     return response.data.data.signUp;
   } catch (error) {
     console.error('Error signing up:', error);
@@ -46,15 +60,10 @@ export const signupUser = async (username: string, password: string) => {
 
 export const loginUser = async (username: string, password: string) => {
   try {
-    const response = await axios.post(
-      'https://parseapi.back4app.com/graphql',
-      {
-        query: `
-          mutation LogIn($username: String!, $password: String!) {
-            logIn(input: {
-              username: $username,
-              password: $password
-            }) {
+    const response = await axios.post(GRAPHQL_URL, {
+      query: `
+          mutation LogIn($input: LogInInput!) {
+            logIn(input: $input) {
               viewer {
                 user {
                   id
@@ -67,23 +76,31 @@ export const loginUser = async (username: string, password: string) => {
             }
           }
         `,
-        variables: {
+      variables: {
+        input: {
           username,
           password,
         },
       },
-      {
-        headers: {
-          'X-Parse-Application-Id': 'DSiIkHz2MVbCZutKS7abtgrRVsiLNNGcs0L7VsNL',
-          'X-Parse-Master-Key': '0cpnqkSUKVkIDlQrNxameA6OmjxmrA72tsUMqVG9',
-          'X-Parse-Client-Key': 'zXOqJ2k44R6xQqqlpPuizAr3rs58RhHXfU7Aj20V',
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    });
+
+    if (response.data.errors?.length) {
+      throw new Error(response.data.errors[0].message || 'Login failed');
+    }
+
     return response.data.data.logIn;
   } catch (error) {
     console.error('Error logging in:', error);
     throw error;
   }
+};
+
+export const getAuthHeaders = () => {
+  const token = localStorage.getItem('authToken');
+
+  return token
+    ? {
+        Authorization: `Bearer ${token}`,
+      }
+    : {};
 };

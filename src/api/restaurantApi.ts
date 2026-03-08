@@ -1,10 +1,8 @@
 import axios from 'axios';
+import { getAuthHeaders } from './authApi';
 
 const fetchRestaurants = async () => {
   try {
-    const username = 'user';
-    const password = 'password';
-
     const response = await axios.post(
       'http://localhost:8080/graphql',
       {
@@ -21,12 +19,16 @@ const fetchRestaurants = async () => {
         `,
       },
       {
-        auth: {
-          username,
-          password,
-        },
-      }
+        headers: getAuthHeaders(),
+      },
     );
+
+    if (response.data.errors?.length) {
+      throw new Error(
+        response.data.errors[0].message || 'Failed to fetch restaurants',
+      );
+    }
+
     console.log(response.data);
 
     return response.data.data.getAllRestaurants;
