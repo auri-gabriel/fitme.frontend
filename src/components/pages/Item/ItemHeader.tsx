@@ -1,5 +1,6 @@
 import React from 'react';
 import { normalizeCurrencyText } from '../../../utils/locale';
+import { Star } from 'lucide-react';
 interface RestaurantData {
   name: string;
   location?: string;
@@ -44,7 +45,10 @@ const ItemHeader: React.FC<ItemHeaderProps> = ({ restaurantData }) => {
             <div className='d-flex flex-column flex-sm-row justify-content-between'>
               <hr className='d-sm-none' />
               <div>
-                <p className='m-0'>⭐{restaurantData.rating ?? '-'}</p>
+                <p className='m-0'>
+                  <Star size={20} color='#FC8019' />{' '}
+                  {restaurantData.rating ?? '-'}
+                </p>
                 <p className='m-0'>100+ ratings</p>
               </div>
               <div className='d-none d-sm-block vertical-divider bg-white' />
