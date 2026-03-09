@@ -1,6 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, ShoppingBag } from 'lucide-react';
+import {
+  ClipboardList,
+  LogIn,
+  LogOut,
+  Menu,
+  Search,
+  ShoppingBag,
+  UserCircle2,
+} from 'lucide-react';
 import logo from '/src/assets/logo-color.svg';
 import { useCart } from '../../context/CartContext';
 import { formatCurrency } from '../../utils/locale';
@@ -9,10 +17,13 @@ const HomeNavbar: React.FC = () => {
   const navigate = useNavigate();
   const { items, totalItems, totalPrice } = useCart();
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
   const cartDropdownRef = useRef<HTMLDivElement | null>(null);
+  const accountDropdownRef = useRef<HTMLDivElement | null>(null);
   const authToken = localStorage.getItem('authToken');
   const authUsername = localStorage.getItem('authUsername');
   const isLoggedIn = Boolean(authToken);
+  const displayName = authUsername || 'Account';
 
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
@@ -21,6 +32,13 @@ const HomeNavbar: React.FC = () => {
         !cartDropdownRef.current.contains(event.target as Node)
       ) {
         setIsCartOpen(false);
+      }
+
+      if (
+        accountDropdownRef.current &&
+        !accountDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsAccountOpen(false);
       }
     };
 
@@ -44,12 +62,22 @@ const HomeNavbar: React.FC = () => {
         </Link>
 
         <div className='d-none d-md-flex align-items-center gap-4'>
-          <input
-            type='text'
-            className='form-control search-bar py-3'
+          <div
+            className='d-flex align-items-center border rounded-3 px-3 bg-white'
             style={{ width: '450px' }}
-            placeholder='Enter item or restaurant you are looking for'
-          />
+          >
+            <Search
+              size={18}
+              className='text-muted flex-shrink-0'
+              aria-hidden='true'
+            />
+            <input
+              type='text'
+              className='form-control search-bar py-3 border-0 shadow-none'
+              placeholder='Search item or restaurant'
+              aria-label='Search item or restaurant'
+            />
+          </div>
           <div className='position-relative' ref={cartDropdownRef}>
             <button
               type='button'
@@ -136,30 +164,64 @@ const HomeNavbar: React.FC = () => {
           </div>
           {isLoggedIn ? (
             <>
-              <Link
-                to='/my-orders'
-                className='fs-sm fw-bold text-dark text-decoration-none'
-              >
-                My Orders
-              </Link>
-              <span className='fs-sm fw-bold'>
-                Logged in as {authUsername || 'User'}
-              </span>
-              <button
-                className='btn btn-secondary px-4 py-3 rounded-3'
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
+              <div className='position-relative' ref={accountDropdownRef}>
+                <button
+                  type='button'
+                  className='btn btn-white border d-flex align-items-center gap-2 px-4 py-3 rounded-4'
+                  onClick={() => setIsAccountOpen((previous) => !previous)}
+                  aria-label='Open account menu'
+                >
+                  <UserCircle2 size={30} aria-hidden='true' />
+                  <span
+                    className='fw-semibold text-truncate'
+                    style={{ maxWidth: '140px' }}
+                  >
+                    {displayName}
+                  </span>
+                </button>
+
+                {isAccountOpen && (
+                  <div
+                    className='position-absolute end-0 mt-3 card border-0 shadow p-2'
+                    style={{ width: '230px', zIndex: 1050 }}
+                  >
+                    <div className='px-2 pt-1 pb-2 border-bottom'>
+                      <p className='mb-0 small text-muted'>Signed in</p>
+                      <p className='mb-0 fw-semibold text-truncate'>
+                        {displayName}
+                      </p>
+                    </div>
+
+                    <Link
+                      to='/my-orders'
+                      className='btn btn-link text-start text-dark text-decoration-none d-flex align-items-center gap-2 py-2 px-2'
+                      onClick={() => setIsAccountOpen(false)}
+                    >
+                      <ClipboardList size={16} aria-hidden='true' />
+                      My Orders
+                    </Link>
+
+                    <button
+                      className='btn btn-link text-start text-dark text-decoration-none d-flex align-items-center gap-2 py-2 px-2'
+                      onClick={() => {
+                        setIsAccountOpen(false);
+                        handleLogout();
+                      }}
+                    >
+                      <LogOut size={16} aria-hidden='true' />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <Link
               to='/login'
-              className='fs-sm fw-bold text-white text-decoration-none'
+              className='btn btn-secondary px-4 py-3 rounded-3 d-flex align-items-center gap-2'
             >
-              <button className='btn btn-secondary px-4 py-3 rounded-3'>
-                Sign&nbsp;In
-              </button>
+              <LogIn size={18} aria-hidden='true' />
+              Sign&nbsp;In
             </Link>
           )}
         </div>
