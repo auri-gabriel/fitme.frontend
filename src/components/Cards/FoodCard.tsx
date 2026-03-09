@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock3 } from 'lucide-react';
+import { Clock3, Star } from 'lucide-react';
 
 interface FoodCardProps {
   title: string;
@@ -38,7 +38,9 @@ const FoodCard: React.FC<FoodCardProps> = ({
         <h3 className='mt-3 fs-lg fw-bold'>{title}</h3>
         <div className='d-flex flex-row justify-content-between mt-2'>
           <span className='text-grey-600 fs-base'>{location}</span>
-          <span>⭐ {rating}</span>
+          <span>
+            <Star size={20} color='#FC8019' /> {rating}
+          </span>
         </div>
         <div className='d-flex align-items-center justify-content-center mt-2 w-100'>
           <Clock3 style={{ width: '16px', height: '16px' }} className='mx-2' />
