@@ -1,57 +1,19 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import TextField from '../components/Forms/Textfield';
 import PrimaryButton from '../components/Buttons/PrimaryButton';
 import { isValidEmail } from '../utils/isValidEmail';
 import { Link, useNavigate } from 'react-router-dom';
 import { signupUser } from '../api/authApi';
 
-const SignupFormContainer = styled.div`
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 2rem;
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-`;
-
-const HeaderContainer = styled.div`
-  padding: 0 18rem;
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 3rem;
-
-  hr {
-    background-color: #808080;
-    border: none;
-    height: 1px;
-  }
-
-  @media (max-width: 1440px) {
-    padding: 0 10rem;
-  }
-
-  @media (max-width: 1024px) {
-    padding: 0 2rem;
-  }
-`;
-
-const SignupLink = styled.p`
-  margin-top: 15px;
-  text-align: center;
-
-  a {
-    font-weight: bold;
-    color: black;
-    text-decoration: none;
-  }
-`;
-
 const Signup: React.FC = () => {
+  type SignupErrors = {
+    fullName: string | null;
+    username: string | null;
+    email: string | null;
+    password: string | null;
+    confirmPassword: string | null;
+  };
+
   const navigate = useNavigate();
   const [signupData, setSignupData] = useState({
     fullName: '',
@@ -61,7 +23,7 @@ const Signup: React.FC = () => {
     confirmPassword: '',
   });
 
-  const [errors, setErrors] = useState({
+  const [errors, setErrors] = useState<SignupErrors>({
     fullName: null,
     username: null,
     email: null,
@@ -80,7 +42,13 @@ const Signup: React.FC = () => {
   };
 
   const validateInputs = () => {
-    const newErrors: { [key: string]: string | null } = {};
+    const newErrors: SignupErrors = {
+      fullName: null,
+      username: null,
+      email: null,
+      password: null,
+      confirmPassword: null,
+    };
 
     if (!signupData.username) {
       newErrors.username = 'Username is required';
@@ -105,7 +73,7 @@ const Signup: React.FC = () => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    return Object.values(newErrors).every((error) => !error);
   };
 
   const handleSignup = async (event: React.FormEvent) => {
@@ -135,13 +103,13 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <>
-      <HeaderContainer>
-        <h2>Sign Up</h2>
-        <hr />
-      </HeaderContainer>
-      <SignupFormContainer>
-        <form onSubmit={handleSignup}>
+    <section className='signup-page'>
+      <div className='signup-page__header'>
+        <h2 className='mb-0'>Sign Up</h2>
+        <hr className='signup-page__divider' />
+      </div>
+      <div className='signup-page__form-wrapper'>
+        <form onSubmit={handleSignup} className='d-flex flex-column gap-4 mb-4'>
           <TextField
             label='Full Name'
             name='fullName'
@@ -180,15 +148,15 @@ const Signup: React.FC = () => {
             onChange={handleInputChange}
             error={errors.confirmPassword}
           />
-          <SignupLink>
+          <p className='signup-page__login-link'>
             Already have an account? <Link to='/login'>Login</Link>
-          </SignupLink>
+          </p>
           <PrimaryButton type='submit'>
             {signupStatus === 'loading' ? 'Registering...' : 'Sign Up'}
           </PrimaryButton>
         </form>
-      </SignupFormContainer>
-    </>
+      </div>
+    </section>
   );
 };
 

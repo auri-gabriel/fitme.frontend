@@ -1,50 +1,47 @@
-import React, {ChangeEvent} from 'react';
-import styled from 'styled-components';
-
-const TextFieldContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  div {
-    margin-top: 0.5rem;
-  }
-`;
-
-const Label = styled.label`
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
-`;
-
-interface InputProps {
-  error?: boolean;
-}
-
-const Input = styled.input`
-  font-size: 1.25rem;
-  border: 2px dashed #FC8019;
-  padding: 1rem;
-  width: 100%;
-  border-radius: 10px;
-  box-sizing: border-box;
-  border-color: ${({ error }) => (error ? 'red' : '#FC8019')};
-`;
+import React, { ChangeEvent } from 'react';
 
 interface TextFieldProps {
   label: string;
   type?: string;
   name?: string;
+  id?: string;
   value?: string;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   error?: string | null;
+  placeholder?: string;
+  autoComplete?: string;
 }
 
-const TextField: React.FC<TextFieldProps> = ({label, type = 'text', name, value, onChange, error}) => {
+const TextField: React.FC<TextFieldProps> = ({
+  label,
+  type = 'text',
+  name,
+  id,
+  value,
+  onChange,
+  error,
+  placeholder,
+  autoComplete,
+}) => {
+  const fieldId = id || name || label.toLowerCase().replace(/\s+/g, '-');
+
   return (
-    <TextFieldContainer>
-      <Label>{label}</Label>
-      <Input type={type} name={name} value={value} onChange={onChange} error={!!error}/>
-      {error && <div style={{color: 'red'}}>{error}</div>}
-    </TextFieldContainer>
+    <div className='d-flex flex-column align-items-start w-100'>
+      <label htmlFor={fieldId} className='form-label fs-5 mb-3'>
+        {label}
+      </label>
+      <input
+        id={fieldId}
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        className={`form-control${error ? ' is-invalid' : ''}`}
+      />
+      {error && <div className='invalid-feedback d-block mt-2'>{error}</div>}
+    </div>
   );
 };
 

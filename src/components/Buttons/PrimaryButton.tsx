@@ -1,23 +1,22 @@
-import styled from 'styled-components';
+import React from 'react';
 
-const PrimaryButton = styled.button`
-  border-radius: 10px;
-  background: #FC8019;
-  display: flex;
-  padding: 1rem 2rem;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  border: none;
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
+type PrimaryButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-  &:hover {
-    background: #FFA94D;
-  }
-`;
+const PrimaryButton: React.FC<PrimaryButtonProps> = ({
+  children,
+  className = '',
+  type = 'button',
+  ...props
+}) => {
+  return (
+    <button
+      type={type}
+      className={`btn btn-primary d-flex justify-content-center align-items-center gap-2 ${className}`.trim()}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
 
 export default PrimaryButton;
-

@@ -1,63 +1,22 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import TextField from '../components/Forms/Textfield';
 import PrimaryButton from '../components/Buttons/PrimaryButton';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../api/authApi';
 
-const LoginFormContainer = styled.div`
-  max-width: 500px;
-  margin: 0 auto;
-  padding: 2rem;
-
-  form {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-`;
-
-const HeaderContainer = styled.div`
-  padding: 0 18rem;
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 3rem;
-
-  hr {
-    background-color: #808080;
-    border: none;
-    height: 1px;
-  }
-
-  @media (max-width: 1440px) {
-    padding: 0 10rem;
-  }
-
-  @media (max-width: 1024px) {
-    padding: 0 2rem;
-  }
-`;
-
-const RegisterLink = styled.p`
-  margin-top: 15px;
-  text-align: center;
-
-  a {
-    font-weight: bold;
-    color: black;
-    text-decoration: none;
-  }
-`;
-
 const Login: React.FC = () => {
+  type LoginErrors = {
+    username: string | null;
+    password: string | null;
+  };
+
   const navigate = useNavigate();
   const [loginData, setLoginData] = useState({
     username: '',
     password: '',
   });
 
-  const [errors, setErrors] = useState({
+  const [errors, setErrors] = useState<LoginErrors>({
     username: null,
     password: null,
   });
@@ -73,7 +32,10 @@ const Login: React.FC = () => {
   };
 
   const validateInputs = () => {
-    const newErrors: { [key: string]: string } = {};
+    const newErrors: LoginErrors = {
+      username: null,
+      password: null,
+    };
 
     if (!loginData.username) {
       newErrors.username = 'Username is required';
@@ -84,7 +46,7 @@ const Login: React.FC = () => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return Object.values(newErrors).every((error) => !error);
   };
 
   const handleLogin = async (event: React.FormEvent) => {
@@ -110,13 +72,13 @@ const Login: React.FC = () => {
   };
 
   return (
-    <>
-      <HeaderContainer>
-        <h2>Login</h2>
-        <hr />
-      </HeaderContainer>
-      <LoginFormContainer>
-        <form onSubmit={handleLogin}>
+    <section className='login-page'>
+      <div className='login-page__header'>
+        <h2 className='mb-0'>Login</h2>
+        <hr className='login-page__divider' />
+      </div>
+      <div className='login-page__form-wrapper'>
+        <form onSubmit={handleLogin} className='d-flex flex-column gap-4 mb-4'>
           <TextField
             label='Username'
             name='username'
@@ -132,15 +94,15 @@ const Login: React.FC = () => {
             onChange={handleInputChange}
             error={errors.password}
           />
-          <RegisterLink>
+          <p className='login-page__register-link'>
             Don't have an account? <Link to='/signup'>Register</Link>
-          </RegisterLink>
+          </p>
           <PrimaryButton type='submit'>
             {loginStatus === 'loading' ? 'Logging in...' : 'Login'}
           </PrimaryButton>
         </form>
-      </LoginFormContainer>
-    </>
+      </div>
+    </section>
   );
 };
 
