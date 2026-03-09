@@ -40,6 +40,11 @@ const Item: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
+        if (!id) {
+          setError('Restaurant id is missing.');
+          return;
+        }
+
         const data = await fetchItemDetails(id);
         setRestaurant(data);
       } catch (err) {

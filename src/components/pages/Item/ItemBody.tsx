@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ItemCard from './ItemCard';
 import { useCart } from '../../../context/CartContext';
 import { formatCurrency } from '../../../utils/locale';
+import { useNavigate } from 'react-router-dom';
 
 interface Category {
   id: string;
@@ -22,6 +23,7 @@ interface ItemBodyProps {
 }
 
 const ItemBody: React.FC<ItemBodyProps> = ({ dishes, categories }) => {
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<string>(
     categories[0]?.id ?? '',
   );
@@ -125,6 +127,13 @@ const ItemBody: React.FC<ItemBodyProps> = ({ dishes, categories }) => {
                   onClick={clearCart}
                 >
                   Clear cart
+                </button>
+
+                <button
+                  className='btn btn-primary w-100 mt-2'
+                  onClick={() => navigate('/checkout')}
+                >
+                  Go to checkout
                 </button>
               </>
             )}
