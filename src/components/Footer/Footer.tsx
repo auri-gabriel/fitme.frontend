@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Facebook, Instagram, Twitter } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -43,9 +44,9 @@ const Footer: React.FC = () => {
             </div>
           </div>
           <div className='d-flex gap-3 justify-content-center'>
-            <img src='/src/assets/facebook-icon.svg' alt='Facebook' />
-            <img src='/src/assets/instagram-icon.svg' alt='Instagram' />
-            <img src='/src/assets/twitter-icon.svg' alt='Twitter' />
+            <Facebook aria-label='Facebook' size={22} color='white' />
+            <Instagram aria-label='Instagram' size={22} color='white' />
+            <Twitter aria-label='Twitter' size={22} color='white' />
           </div>
         </div>
       </div>

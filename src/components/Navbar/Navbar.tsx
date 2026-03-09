@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Menu, ShoppingBag } from 'lucide-react';
 import logo from '/src/assets/logo-color.svg';
-import bagIcon from '/src/assets/Bag.svg';
-import burgerIcon from '/src/assets/Burger.svg';
 import { useCart } from '../../context/CartContext';
 
 const HomeNavbar: React.FC = () => {
@@ -33,7 +32,7 @@ const HomeNavbar: React.FC = () => {
             placeholder='Enter item or restaurant you are looking for'
           />
           <div className='position-relative'>
-            <img src={bagIcon} alt='Bag' />
+            <ShoppingBag aria-label='Bag' size={30} />
             {totalItems > 0 && (
               <span
                 className='position-absolute translate-middle badge rounded-pill bg-primary'
@@ -67,7 +66,7 @@ const HomeNavbar: React.FC = () => {
           )}
         </div>
 
-        <img src={burgerIcon} alt='Menu' className='d-md-none' />
+        <Menu aria-label='Menu' size={30} className='d-md-none' />
       </div>
     </nav>
   );
