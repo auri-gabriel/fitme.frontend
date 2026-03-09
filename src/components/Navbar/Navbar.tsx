@@ -56,15 +56,18 @@ const HomeNavbar: React.FC = () => {
 
   return (
     <nav className='navbar-custom px-xl-5 px-lg-4 px-md-3 py-5 bg-white'>
-      <div className='container d-flex justify-content-between align-items-center'>
+      <div className='container d-flex justify-content-between align-items-center position-relative'>
         <Link to='/'>
           <img src={logo} alt='Logo' height='40' />
         </Link>
 
-        <div className='d-none d-md-flex align-items-center gap-4'>
+        <div
+          className='d-none d-md-flex position-absolute start-50 translate-middle-x'
+          style={{ width: '450px' }}
+        >
           <div
             className='d-flex align-items-center border rounded-3 px-3 bg-white'
-            style={{ width: '450px' }}
+            style={{ width: '100%' }}
           >
             <Search
               size={18}
@@ -78,6 +81,9 @@ const HomeNavbar: React.FC = () => {
               aria-label='Search item or restaurant'
             />
           </div>
+        </div>
+
+        <div className='d-none d-md-flex align-items-center gap-4'>
           <div className='position-relative' ref={cartDropdownRef}>
             <button
               type='button'
