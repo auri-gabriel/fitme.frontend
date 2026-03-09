@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import logo from '/src/assets/logo-color.svg';
 import bagIcon from '/src/assets/Bag.svg';
 import burgerIcon from '/src/assets/Burger.svg';
+import { useCart } from '../../context/CartContext';
 
 const HomeNavbar: React.FC = () => {
   const navigate = useNavigate();
+  const { totalItems } = useCart();
   const authToken = localStorage.getItem('authToken');
   const authUsername = localStorage.getItem('authUsername');
   const isLoggedIn = Boolean(authToken);
@@ -30,7 +32,17 @@ const HomeNavbar: React.FC = () => {
             style={{ width: '450px' }}
             placeholder='Enter item or restaurant you are looking for'
           />
-          <img src={bagIcon} alt='Bag' />
+          <div className='position-relative'>
+            <img src={bagIcon} alt='Bag' />
+            {totalItems > 0 && (
+              <span
+                className='position-absolute translate-middle badge rounded-pill bg-primary'
+                style={{ top: '0px', right: '-8px' }}
+              >
+                {totalItems}
+              </span>
+            )}
+          </div>
           {isLoggedIn ? (
             <>
               <span className='fs-sm fw-bold'>

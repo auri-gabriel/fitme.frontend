@@ -1,12 +1,13 @@
 import React from 'react';
+import { normalizeCurrencyText } from '../../../utils/locale';
 interface RestaurantData {
   name: string;
-  location: string;
-  rating: number;
-  deliveryTime: string;
-  cost: string;
-  offers: string[];
-  image: string;
+  location?: string;
+  rating?: number;
+  deliveryTime?: string | number;
+  cost?: string;
+  offers?: string[];
+  image?: string;
 }
 
 interface ItemHeaderProps {
@@ -14,6 +15,14 @@ interface ItemHeaderProps {
 }
 
 const ItemHeader: React.FC<ItemHeaderProps> = ({ restaurantData }) => {
+  const safeOffers = Array.isArray(restaurantData?.offers)
+    ? restaurantData.offers
+    : [];
+  const displayOffers =
+    safeOffers.length > 0
+      ? safeOffers
+      : ['20% off your first order | Use code WELCOME'];
+
   return (
     <div className='bg-secondary text-white'>
       <div className='container'>
@@ -27,25 +36,27 @@ const ItemHeader: React.FC<ItemHeaderProps> = ({ restaurantData }) => {
           </div>
           <div className='d-flex flex-column justify-content-center col-12 pt-4 pt-xl-0 col-lg-8 px-lg-5 col-xl-5'>
             <div>
-              <h2 className='m-0'>{restaurantData.name}</h2>
-              <p className='mb-sm-5 text-grey-500'>{restaurantData.location}</p>
+              <h2 className='m-0'>{restaurantData.name || 'Restaurant'}</h2>
+              <p className='mb-sm-5 text-grey-500'>
+                {restaurantData.location || 'Local area'}
+              </p>
             </div>
             <div className='d-flex flex-column flex-sm-row justify-content-between'>
               <hr className='d-sm-none' />
               <div>
-                <p className='m-0'>⭐{restaurantData.rating}</p>
+                <p className='m-0'>⭐{restaurantData.rating ?? '-'}</p>
                 <p className='m-0'>100+ ratings</p>
               </div>
               <div className='d-none d-sm-block vertical-divider bg-white' />
               <hr className='d-sm-none' />
               <div>
-                <p className='m-0'>{restaurantData.deliveryTime} Mins</p>
+                <p className='m-0'>{restaurantData.deliveryTime || '-'} min</p>
                 <p className='m-0'>Delivery Time</p>
               </div>
               <div className='d-none d-sm-block vertical-divider bg-white' />
               <hr className='d-sm-none' />
               <div>
-                <p>{restaurantData.cost}</p>
+                <p>{normalizeCurrencyText(restaurantData.cost || '')}</p>
                 <p>Cost for two</p>
               </div>
               <hr className='d-sm-none' />
@@ -53,8 +64,9 @@ const ItemHeader: React.FC<ItemHeaderProps> = ({ restaurantData }) => {
           </div>
           <div className='item-header__offers rounded-5 mt-4 mt-xl-0 offset-xl-1 border-primary col-12 col-xl-3 p-5'>
             <h3 className='text-primary'>Offers</h3>
-            <p>50% off up to ₹100 | Use code TRYNEW</p>
-            <p>20% off | Use code PARTY</p>
+            {displayOffers.map((offer, index) => (
+              <p key={index}>{normalizeCurrencyText(offer)}</p>
+            ))}
           </div>
         </div>
       </div>

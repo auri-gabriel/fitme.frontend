@@ -1,4 +1,6 @@
 import React from 'react';
+import { formatCurrency } from '../../../utils/locale';
+import { useCart } from '../../../context/CartContext';
 
 interface Dish {
   id: string;
@@ -13,11 +15,15 @@ interface ItemCardProps {
 }
 
 const ItemCard: React.FC<ItemCardProps> = ({ dish }) => {
+  const { addItem } = useCart();
+
   return (
     <div className='card border-0 mb-4 p-3 d-flex flex-md-row flex-column-reverse align-items-center justify-content-end gap-5'>
       <div className='flex-grow-1'>
         <h3 className='text-black fs-lg fw-bold'>{dish.name}</h3>
-        <p className='text-black fs-base fw-bold'>${dish.price}</p>
+        <p className='text-black fs-base fw-bold'>
+          {formatCurrency(dish.price)}
+        </p>
         <p className='text-grey-600 fs-base fw-normal'>{dish.description}</p>
       </div>
       <div className='d-flex flex-column justify-content-end align-items-center position-relative flex-grow-1 mb-md-0 mb-5'>
@@ -32,6 +38,14 @@ const ItemCard: React.FC<ItemCardProps> = ({ dish }) => {
           style={{
             bottom: '-24px',
           }}
+          onClick={() =>
+            addItem({
+              id: dish.id,
+              name: dish.name,
+              price: dish.price,
+              image: dish.image,
+            })
+          }
         >
           Add +
         </button>
