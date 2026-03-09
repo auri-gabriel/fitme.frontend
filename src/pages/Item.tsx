@@ -93,6 +93,7 @@ const Item: React.FC = () => {
       <ItemBody
         dishes={restaurant.topDishes}
         categories={restaurant.categories}
+        restaurantName={restaurant.name}
       />
     </>
   );

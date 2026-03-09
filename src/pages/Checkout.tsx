@@ -70,6 +70,7 @@ const Checkout: React.FC = () => {
             orderId: paymentResponse.order.id,
             totalAmount: paymentResponse.order.totalAmount,
             paymentReference: paymentResponse.order.paymentReference,
+            items: paymentResponse.order.items,
           },
         });
       } else {

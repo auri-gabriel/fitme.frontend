@@ -69,42 +69,69 @@ const MyOrders: React.FC = () => {
 
           {!loading && !error && orders.length > 0 && (
             <div className='d-grid gap-3'>
-              {orders.map((order) => (
-                <div key={order.id} className='card border-0 shadow-sm p-4'>
-                  <div className='d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2'>
-                    <div>
-                      <p className='mb-1 fw-bold'>Order #{order.id}</p>
-                      <p className='mb-0 text-muted'>
-                        {order.createdAt
-                          ? new Date(order.createdAt).toLocaleString()
-                          : 'Date unavailable'}
-                      </p>
+              {orders.map((order) => {
+                const groupedItems = order.items.reduce<
+                  Record<string, typeof order.items>
+                >((accumulator, item) => {
+                  const key = item.restaurantName || 'Unknown restaurant';
+                  if (!accumulator[key]) {
+                    accumulator[key] = [];
+                  }
+                  accumulator[key].push(item);
+                  return accumulator;
+                }, {});
+
+                return (
+                  <div key={order.id} className='card border-0 shadow-sm p-4'>
+                    <div className='d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2'>
+                      <div>
+                        <p className='mb-1 fw-bold'>Order #{order.id}</p>
+                        <p className='mb-0 text-muted'>
+                          {order.createdAt
+                            ? new Date(order.createdAt).toLocaleString()
+                            : 'Date unavailable'}
+                        </p>
+                      </div>
+                      <span className='badge bg-secondary'>{order.status}</span>
                     </div>
-                    <span className='badge bg-secondary'>{order.status}</span>
-                  </div>
 
-                  <ul className='list-unstyled mb-3'>
-                    {order.items.map((item) => (
-                      <li
-                        key={item.id}
-                        className='d-flex justify-content-between align-items-center py-1'
-                      >
-                        <span>
-                          {item.quantity}x {item.dishName}
-                        </span>
-                        <span>{formatCurrency(item.lineTotal)}</span>
-                      </li>
-                    ))}
-                  </ul>
+                    <div className='mb-3'>
+                      {Object.entries(groupedItems).map(
+                        ([restaurantName, items]) => (
+                          <div key={restaurantName} className='mb-3'>
+                            <p className='mb-2 text-muted'>
+                              from{' '}
+                              <span className='text-primary'>
+                                {restaurantName}
+                              </span>
+                            </p>
+                            <ul className='list-unstyled mb-0'>
+                              {items.map((item) => (
+                                <li
+                                  key={item.id}
+                                  className='d-flex justify-content-between align-items-center py-1'
+                                >
+                                  <span>
+                                    {item.quantity}x {item.dishName}
+                                  </span>
+                                  <span>{formatCurrency(item.lineTotal)}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ),
+                      )}
+                    </div>
 
-                  <div className='d-flex justify-content-between align-items-center border-top pt-2'>
-                    <span className='fw-semibold'>Total</span>
-                    <span className='fw-bold'>
-                      {formatCurrency(order.totalAmount)}
-                    </span>
+                    <div className='d-flex justify-content-between align-items-center border-top pt-2'>
+                      <span className='fw-semibold'>Total</span>
+                      <span className='fw-bold'>
+                        {formatCurrency(order.totalAmount)}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

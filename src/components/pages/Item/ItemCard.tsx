@@ -12,9 +12,10 @@ interface Dish {
 
 interface ItemCardProps {
   dish: Dish;
+  restaurantName: string;
 }
 
-const ItemCard: React.FC<ItemCardProps> = ({ dish }) => {
+const ItemCard: React.FC<ItemCardProps> = ({ dish, restaurantName }) => {
   const { addItem } = useCart();
 
   return (
@@ -43,6 +44,7 @@ const ItemCard: React.FC<ItemCardProps> = ({ dish }) => {
               id: dish.id,
               name: dish.name,
               price: dish.price,
+              restaurantName,
               image: dish.image,
             })
           }

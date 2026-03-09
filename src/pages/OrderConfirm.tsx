@@ -1,16 +1,30 @@
 import React from 'react';
 import { Link, useLocation, Navigate } from 'react-router-dom';
 import { formatCurrency } from '../utils/locale';
+import { type OrderItem } from '../api/orderApi';
 
 interface OrderConfirmState {
   orderId: string;
   totalAmount: number;
   paymentReference?: string;
+  items?: OrderItem[];
 }
 
 const OrderConfirm: React.FC = () => {
   const location = useLocation();
   const state = location.state as OrderConfirmState | undefined;
+
+  const groupedItems = (state?.items ?? []).reduce<Record<string, OrderItem[]>>(
+    (accumulator, item) => {
+      const key = item.restaurantName || 'Unknown restaurant';
+      if (!accumulator[key]) {
+        accumulator[key] = [];
+      }
+      accumulator[key].push(item);
+      return accumulator;
+    },
+    {},
+  );
 
   if (!state) {
     return <Navigate to='/checkout' replace />;
@@ -32,6 +46,32 @@ const OrderConfirm: React.FC = () => {
               <p className='mb-3'>
                 <strong>Payment reference:</strong> {state.paymentReference}
               </p>
+            )}
+
+            {state.items && state.items.length > 0 && (
+              <div className='mb-3 border rounded-3 p-3'>
+                {Object.entries(groupedItems).map(([restaurantName, items]) => (
+                  <div key={restaurantName} className='mb-3'>
+                    <p className='mb-2 text-muted'>
+                      from{' '}
+                      <span className='text-primary'>{restaurantName}</span>
+                    </p>
+                    <ul className='list-unstyled mb-0'>
+                      {items.map((item) => (
+                        <li
+                          key={item.id}
+                          className='d-flex justify-content-between align-items-center py-1'
+                        >
+                          <span>
+                            {item.quantity}x {item.dishName}
+                          </span>
+                          <span>{formatCurrency(item.lineTotal)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
             )}
 
             <div className='d-grid gap-2'>
