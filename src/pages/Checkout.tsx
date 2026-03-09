@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import {
   confirmPayment,
@@ -9,13 +9,13 @@ import {
 import { formatCurrency } from '../utils/locale';
 
 const Checkout: React.FC = () => {
+  const navigate = useNavigate();
   const { items, clearCart, totalPrice } = useCart();
   const [paymentReference, setPaymentReference] = useState<string>(
     `MOCK-${Date.now()}`,
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
 
   const totalItems = useMemo(
     () => items.reduce((sum, item) => sum + item.quantity, 0),
@@ -46,7 +46,6 @@ const Checkout: React.FC = () => {
     try {
       setLoading(true);
       setError('');
-      setSuccess('');
 
       const orderItems: CreateOrderItemInput[] = items.map((item) => ({
         dishId: Number(item.id),
@@ -66,7 +65,13 @@ const Checkout: React.FC = () => {
 
       if (paymentResponse.order.status === 'PAID') {
         clearCart();
-        setSuccess(`Order #${paymentResponse.order.id} confirmed and paid.`);
+        navigate('/orderConfirm', {
+          state: {
+            orderId: paymentResponse.order.id,
+            totalAmount: paymentResponse.order.totalAmount,
+            paymentReference: paymentResponse.order.paymentReference,
+          },
+        });
       } else {
         setError(
           paymentResponse.message ||
@@ -148,11 +153,6 @@ const Checkout: React.FC = () => {
                 <Link to='/' className='btn btn-outline-secondary w-100 mt-2'>
                   Continue shopping
                 </Link>
-
-                {success && (
-                  <div className='alert alert-success mt-3 mb-0'>{success}</div>
-                )}
-
                 {error && (
                   <div className='alert alert-danger mt-3 mb-0'>{error}</div>
                 )}

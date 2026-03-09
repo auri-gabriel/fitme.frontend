@@ -44,6 +44,12 @@ const HomeNavbar: React.FC = () => {
           </div>
           {isLoggedIn ? (
             <>
+              <Link
+                to='/my-orders'
+                className='fs-sm fw-bold text-dark text-decoration-none'
+              >
+                My Orders
+              </Link>
               <span className='fs-sm fw-bold'>
                 Logged in as {authUsername || 'User'}
               </span>

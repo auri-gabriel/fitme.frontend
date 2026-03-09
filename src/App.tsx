@@ -6,6 +6,8 @@ import Home from './pages/Home';
 import Signup from './pages/Signup';
 import Item from './pages/Item';
 import Checkout from './pages/Checkout';
+import OrderConfirm from './pages/OrderConfirm';
+import MyOrders from './pages/MyOrders';
 
 const router = createBrowserRouter([
   {
@@ -31,6 +33,14 @@ const router = createBrowserRouter([
       {
         path: '/checkout',
         element: <Checkout />,
+      },
+      {
+        path: '/orderConfirm',
+        element: <OrderConfirm />,
+      },
+      {
+        path: '/my-orders',
+        element: <MyOrders />,
       },
     ],
   },
