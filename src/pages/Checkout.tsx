@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import {
@@ -6,6 +6,12 @@ import {
   createOrder,
   type CreateOrderItemInput,
 } from '../api/orderApi';
+import {
+  createMyAddress,
+  getMyAddresses,
+  type CreateAddressInput,
+  type UserAddress,
+} from '../api/addressApi';
 import { formatCurrency } from '../utils/locale';
 
 const Checkout: React.FC = () => {
@@ -16,6 +22,18 @@ const Checkout: React.FC = () => {
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [addresses, setAddresses] = useState<UserAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [addressForm, setAddressForm] = useState<CreateAddressInput>({
+    label: '',
+    line1: '',
+    line2: '',
+    city: '',
+    postalCode: '',
+    isDefault: false,
+  });
+  const [addressLoading, setAddressLoading] = useState<boolean>(false);
+  const [addressError, setAddressError] = useState<string>('');
 
   const totalItems = useMemo(
     () => items.reduce((sum, item) => sum + item.quantity, 0),
@@ -26,6 +44,94 @@ const Checkout: React.FC = () => {
     return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   };
 
+  useEffect(() => {
+    const loadAddresses = async (): Promise<void> => {
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) {
+        return;
+      }
+
+      try {
+        setAddressLoading(true);
+        setAddressError('');
+        const loadedAddresses = await getMyAddresses();
+        setAddresses(loadedAddresses);
+        const defaultAddress = loadedAddresses.find(
+          (address) => address.isDefault,
+        );
+        setSelectedAddressId(
+          defaultAddress?.id ?? loadedAddresses[0]?.id ?? '',
+        );
+      } catch {
+        setAddressError(
+          'Unable to load your addresses. Please refresh and try again.',
+        );
+      } finally {
+        setAddressLoading(false);
+      }
+    };
+
+    void loadAddresses();
+  }, []);
+
+  const handleAddressInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
+    const { name, value, type, checked } = event.currentTarget;
+    setAddressForm((previous) => ({
+      ...previous,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleCreateAddress = async (): Promise<void> => {
+    if (
+      !addressForm.label.trim() ||
+      !addressForm.line1.trim() ||
+      !addressForm.city.trim() ||
+      !addressForm.postalCode.trim()
+    ) {
+      setAddressError('Label, line 1, city and postal code are required.');
+      return;
+    }
+
+    try {
+      setAddressLoading(true);
+      setAddressError('');
+      const createdAddress = await createMyAddress({
+        ...addressForm,
+        label: addressForm.label.trim(),
+        line1: addressForm.line1.trim(),
+        line2: addressForm.line2?.trim() || undefined,
+        city: addressForm.city.trim(),
+        postalCode: addressForm.postalCode.trim(),
+      });
+
+      setAddresses((previous) => {
+        if (createdAddress.isDefault) {
+          return [
+            createdAddress,
+            ...previous.map((address) => ({ ...address, isDefault: false })),
+          ];
+        }
+        return [...previous, createdAddress];
+      });
+      setSelectedAddressId(createdAddress.id);
+      setAddressForm({
+        label: '',
+        line1: '',
+        line2: '',
+        city: '',
+        postalCode: '',
+        isDefault: false,
+      });
+    } catch {
+      setAddressError('Unable to save address. Please try again.');
+    } finally {
+      setAddressLoading(false);
+    }
+  };
+
   const handleConfirmOrder = async (): Promise<void> => {
     if (items.length === 0) {
       setError('Your cart is empty.');
@@ -34,6 +140,11 @@ const Checkout: React.FC = () => {
 
     if (!paymentReference.trim()) {
       setError('Payment reference is required.');
+      return;
+    }
+
+    if (!selectedAddressId) {
+      setError('Please select a delivery address.');
       return;
     }
 
@@ -55,6 +166,7 @@ const Checkout: React.FC = () => {
       const createOrderResponse = await createOrder(
         orderItems,
         generateIdempotencyKey(),
+        Number(selectedAddressId),
       );
 
       const paymentResponse = await confirmPayment(
@@ -142,6 +254,109 @@ const Checkout: React.FC = () => {
                     setPaymentReference(event.currentTarget.value)
                   }
                 />
+
+                <label htmlFor='deliveryAddress' className='form-label'>
+                  Delivery address
+                </label>
+                <select
+                  id='deliveryAddress'
+                  className='form-select mb-3'
+                  value={selectedAddressId}
+                  onChange={(event) =>
+                    setSelectedAddressId(event.currentTarget.value)
+                  }
+                  disabled={addressLoading}
+                >
+                  <option value=''>Select an address</option>
+                  {addresses.map((address) => (
+                    <option key={address.id} value={address.id}>
+                      {address.label} - {address.line1}, {address.city}{' '}
+                      {address.postalCode}
+                    </option>
+                  ))}
+                </select>
+
+                <div className='border rounded p-3 mb-3'>
+                  <p className='fw-semibold mb-2'>Add new address</p>
+                  <div className='row g-2'>
+                    <div className='col-12 col-md-6'>
+                      <input
+                        className='form-control'
+                        name='label'
+                        placeholder='Label (e.g. Home)'
+                        value={addressForm.label}
+                        onChange={handleAddressInputChange}
+                      />
+                    </div>
+                    <div className='col-12 col-md-6'>
+                      <input
+                        className='form-control'
+                        name='postalCode'
+                        placeholder='Postal code'
+                        value={addressForm.postalCode}
+                        onChange={handleAddressInputChange}
+                      />
+                    </div>
+                    <div className='col-12'>
+                      <input
+                        className='form-control'
+                        name='line1'
+                        placeholder='Address line 1'
+                        value={addressForm.line1}
+                        onChange={handleAddressInputChange}
+                      />
+                    </div>
+                    <div className='col-12'>
+                      <input
+                        className='form-control'
+                        name='line2'
+                        placeholder='Address line 2 (optional)'
+                        value={addressForm.line2}
+                        onChange={handleAddressInputChange}
+                      />
+                    </div>
+                    <div className='col-12 col-md-8'>
+                      <input
+                        className='form-control'
+                        name='city'
+                        placeholder='City'
+                        value={addressForm.city}
+                        onChange={handleAddressInputChange}
+                      />
+                    </div>
+                    <div className='col-12 col-md-4 d-flex align-items-center'>
+                      <div className='form-check'>
+                        <input
+                          className='form-check-input'
+                          type='checkbox'
+                          id='isDefaultAddress'
+                          name='isDefault'
+                          checked={Boolean(addressForm.isDefault)}
+                          onChange={handleAddressInputChange}
+                        />
+                        <label
+                          className='form-check-label'
+                          htmlFor='isDefaultAddress'
+                        >
+                          Default
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type='button'
+                    className='btn btn-outline-primary mt-3'
+                    onClick={handleCreateAddress}
+                    disabled={addressLoading}
+                  >
+                    {addressLoading ? 'Saving address...' : 'Save address'}
+                  </button>
+                  {addressError && (
+                    <div className='alert alert-danger mt-3 mb-0'>
+                      {addressError}
+                    </div>
+                  )}
+                </div>
 
                 <button
                   className='btn btn-success w-100'

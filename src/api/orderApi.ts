@@ -54,6 +54,7 @@ export interface ConfirmPaymentResponse {
 export const createOrder = async (
   items: CreateOrderItemInput[],
   idempotencyKey: string,
+  addressId: number,
 ): Promise<CreateOrderResponse> => {
   const response = await axios.post(
     GRAPHQL_URL,
@@ -96,6 +97,7 @@ export const createOrder = async (
         input: {
           items,
           idempotencyKey,
+          addressId,
         },
       },
     },
