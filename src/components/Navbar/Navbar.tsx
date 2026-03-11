@@ -4,6 +4,7 @@ import {
   ClipboardList,
   LogIn,
   LogOut,
+  MapPin,
   Menu,
   Search,
   ShoppingBag,
@@ -205,6 +206,15 @@ const HomeNavbar: React.FC = () => {
                     >
                       <ClipboardList size={16} aria-hidden='true' />
                       My Orders
+                    </Link>
+
+                    <Link
+                      to='/my-addresses'
+                      className='btn btn-link text-start text-dark text-decoration-none d-flex align-items-center gap-2 py-2 px-2'
+                      onClick={() => setIsAccountOpen(false)}
+                    >
+                      <MapPin size={16} aria-hidden='true' />
+                      My Addresses
                     </Link>
 
                     <button

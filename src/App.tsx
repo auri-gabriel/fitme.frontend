@@ -8,6 +8,7 @@ import Item from './pages/Item';
 import Checkout from './pages/Checkout';
 import OrderConfirm from './pages/OrderConfirm';
 import MyOrders from './pages/MyOrders';
+import MyAddresses from './pages/MyAddresses';
 
 const router = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: '/my-orders',
         element: <MyOrders />,
+      },
+      {
+        path: '/my-addresses',
+        element: <MyAddresses />,
       },
     ],
   },

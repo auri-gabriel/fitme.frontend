@@ -23,6 +23,7 @@ const Checkout: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [addresses, setAddresses] = useState<UserAddress[]>([]);
+  const NEW_ADDRESS_OPTION = '__new__';
   const [selectedAddressId, setSelectedAddressId] = useState<string>('');
   const [addressForm, setAddressForm] = useState<CreateAddressInput>({
     label: '',
@@ -60,7 +61,7 @@ const Checkout: React.FC = () => {
           (address) => address.isDefault,
         );
         setSelectedAddressId(
-          defaultAddress?.id ?? loadedAddresses[0]?.id ?? '',
+          defaultAddress?.id ?? loadedAddresses[0]?.id ?? NEW_ADDRESS_OPTION,
         );
       } catch {
         setAddressError(
@@ -143,7 +144,7 @@ const Checkout: React.FC = () => {
       return;
     }
 
-    if (!selectedAddressId) {
+    if (!selectedAddressId || selectedAddressId === NEW_ADDRESS_OPTION) {
       setError('Please select a delivery address.');
       return;
     }
@@ -268,6 +269,7 @@ const Checkout: React.FC = () => {
                   disabled={addressLoading}
                 >
                   <option value=''>Select an address</option>
+                  <option value={NEW_ADDRESS_OPTION}>+ Add new address</option>
                   {addresses.map((address) => (
                     <option key={address.id} value={address.id}>
                       {address.label} - {address.line1}, {address.city}{' '}
@@ -276,87 +278,89 @@ const Checkout: React.FC = () => {
                   ))}
                 </select>
 
-                <div className='border rounded p-3 mb-3'>
-                  <p className='fw-semibold mb-2'>Add new address</p>
-                  <div className='row g-2'>
-                    <div className='col-12 col-md-6'>
-                      <input
-                        className='form-control'
-                        name='label'
-                        placeholder='Label (e.g. Home)'
-                        value={addressForm.label}
-                        onChange={handleAddressInputChange}
-                      />
-                    </div>
-                    <div className='col-12 col-md-6'>
-                      <input
-                        className='form-control'
-                        name='postalCode'
-                        placeholder='Postal code'
-                        value={addressForm.postalCode}
-                        onChange={handleAddressInputChange}
-                      />
-                    </div>
-                    <div className='col-12'>
-                      <input
-                        className='form-control'
-                        name='line1'
-                        placeholder='Address line 1'
-                        value={addressForm.line1}
-                        onChange={handleAddressInputChange}
-                      />
-                    </div>
-                    <div className='col-12'>
-                      <input
-                        className='form-control'
-                        name='line2'
-                        placeholder='Address line 2 (optional)'
-                        value={addressForm.line2}
-                        onChange={handleAddressInputChange}
-                      />
-                    </div>
-                    <div className='col-12 col-md-8'>
-                      <input
-                        className='form-control'
-                        name='city'
-                        placeholder='City'
-                        value={addressForm.city}
-                        onChange={handleAddressInputChange}
-                      />
-                    </div>
-                    <div className='col-12 col-md-4 d-flex align-items-center'>
-                      <div className='form-check'>
+                {selectedAddressId === NEW_ADDRESS_OPTION && (
+                  <div className='border rounded p-3 mb-3'>
+                    <p className='fw-semibold mb-2'>Add new address</p>
+                    <div className='row g-2'>
+                      <div className='col-12 col-md-6'>
                         <input
-                          className='form-check-input'
-                          type='checkbox'
-                          id='isDefaultAddress'
-                          name='isDefault'
-                          checked={Boolean(addressForm.isDefault)}
+                          className='form-control'
+                          name='label'
+                          placeholder='Label (e.g. Home)'
+                          value={addressForm.label}
                           onChange={handleAddressInputChange}
                         />
-                        <label
-                          className='form-check-label'
-                          htmlFor='isDefaultAddress'
-                        >
-                          Default
-                        </label>
+                      </div>
+                      <div className='col-12 col-md-6'>
+                        <input
+                          className='form-control'
+                          name='postalCode'
+                          placeholder='Postal code'
+                          value={addressForm.postalCode}
+                          onChange={handleAddressInputChange}
+                        />
+                      </div>
+                      <div className='col-12'>
+                        <input
+                          className='form-control'
+                          name='line1'
+                          placeholder='Address line 1'
+                          value={addressForm.line1}
+                          onChange={handleAddressInputChange}
+                        />
+                      </div>
+                      <div className='col-12'>
+                        <input
+                          className='form-control'
+                          name='line2'
+                          placeholder='Address line 2 (optional)'
+                          value={addressForm.line2}
+                          onChange={handleAddressInputChange}
+                        />
+                      </div>
+                      <div className='col-12 col-md-8'>
+                        <input
+                          className='form-control'
+                          name='city'
+                          placeholder='City'
+                          value={addressForm.city}
+                          onChange={handleAddressInputChange}
+                        />
+                      </div>
+                      <div className='col-12 col-md-4 d-flex align-items-center'>
+                        <div className='form-check'>
+                          <input
+                            className='form-check-input'
+                            type='checkbox'
+                            id='isDefaultAddress'
+                            name='isDefault'
+                            checked={Boolean(addressForm.isDefault)}
+                            onChange={handleAddressInputChange}
+                          />
+                          <label
+                            className='form-check-label'
+                            htmlFor='isDefaultAddress'
+                          >
+                            Default
+                          </label>
+                        </div>
                       </div>
                     </div>
+                    <button
+                      type='button'
+                      className='btn btn-outline-primary mt-3'
+                      onClick={handleCreateAddress}
+                      disabled={addressLoading}
+                    >
+                      {addressLoading ? 'Saving address...' : 'Save address'}
+                    </button>
+                    {addressError && (
+                      <div className='alert alert-danger mt-3 mb-0'>
+                        {addressError}
+                      </div>
+                    )}
                   </div>
-                  <button
-                    type='button'
-                    className='btn btn-outline-primary mt-3'
-                    onClick={handleCreateAddress}
-                    disabled={addressLoading}
-                  >
-                    {addressLoading ? 'Saving address...' : 'Save address'}
-                  </button>
-                  {addressError && (
-                    <div className='alert alert-danger mt-3 mb-0'>
-                      {addressError}
-                    </div>
-                  )}
-                </div>
+                )}
 
                 <button
                   className='btn btn-success w-100'

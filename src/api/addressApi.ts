@@ -88,3 +88,63 @@ export const createMyAddress = async (
 
   return response.data.data.createMyAddress;
 };
+
+export const setDefaultAddress = async (
+  addressId: string,
+): Promise<UserAddress> => {
+  const response = await axios.post(
+    GRAPHQL_URL,
+    {
+      query: `
+        mutation SetDefaultAddress($addressId: ID!) {
+          setDefaultAddress(addressId: $addressId) {
+            id
+            label
+            line1
+            line2
+            city
+            postalCode
+            isDefault
+            createdAt
+            updatedAt
+          }
+        }
+      `,
+      variables: {
+        addressId,
+      },
+    },
+    { headers: getAuthHeaders() },
+  );
+
+  if (response.data.errors?.length) {
+    throw new Error(
+      response.data.errors[0].message || 'Set default address failed',
+    );
+  }
+
+  return response.data.data.setDefaultAddress;
+};
+
+export const deleteMyAddress = async (addressId: string): Promise<boolean> => {
+  const response = await axios.post(
+    GRAPHQL_URL,
+    {
+      query: `
+        mutation DeleteMyAddress($addressId: ID!) {
+          deleteMyAddress(addressId: $addressId)
+        }
+      `,
+      variables: {
+        addressId,
+      },
+    },
+    { headers: getAuthHeaders() },
+  );
+
+  if (response.data.errors?.length) {
+    throw new Error(response.data.errors[0].message || 'Delete address failed');
+  }
+
+  return Boolean(response.data.data.deleteMyAddress);
+};
